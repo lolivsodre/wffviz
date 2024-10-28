@@ -1,0 +1,211 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+# Define the data as provided
+data = {
+    'Brand': [
+        'Hugo Boss', 'Lululemon', 'Primark', 'Adidas', 'Nike', 
+        'Marks & Spencer', 'Hanes', 'Target', 'The North Face', 'Zara',
+        'American Eagle', 'Balenciaga', 'Bottega Veneta', 'Champion', 'G-Star RAW',
+        'Gucci', 'JD Sports', 'OVS', 'SAINT LAURENT', 'Converse'
+    ],
+    'Decarbonisation Score': [
+        7.5, 8.1, 6.2, 7.9, 8.3, 
+        6.7, 5.9, 8.0, 7.8, 6.4,
+        5.5, 7.0, 7.2, 6.8, 5.6,
+        7.6, 6.1, 6.3, 8.5, 7.4
+    ],
+    'Scope 1 Emissions': [
+        5000, 3200, 4300, 5200, 4000, 
+        2100, 1500, 3800, 5000, 6100,
+        5500, 4700, 4100, 6000, 2500,
+        5400, 3900, 4700, 3800, 3600
+    ],
+    'Scope 2 Emissions': [
+        8000, 7200, 6000, 6500, 7100, 
+        6800, 5500, 6200, 6400, 6900,
+        5000, 6800, 7000, 6200, 5600,
+        6300, 5800, 7100, 7300, 7400
+    ],
+    'Scope 3 Emissions': [
+        96000, 87000, 92000, 98000, 91000, 
+        85000, 89000, 87000, 88000, 93000,
+        84000, 86000, 90000, 88000, 82000,
+        81000, 83000, 85000, 92000, 94000
+    ],
+    'Accountability Score': [
+        6.0, 8.2, 5.5, 7.1, 7.3, 
+        6.5, 5.0, 7.0, 6.9, 5.6,
+        6.1, 7.4, 6.8, 5.5, 6.2,
+        7.3, 5.9, 6.7, 8.4, 7.1
+    ],
+    'Energy Procurement Score': [
+        5.8, 7.5, 5.2, 7.0, 7.5, 
+        6.9, 5.4, 6.3, 7.4, 5.8,
+        6.0, 7.1, 6.5, 5.7, 6.1,
+        7.6, 5.6, 5.9, 8.0, 6.7
+    ],
+    'Financing Decarbonisation Score': [
+        4.5, 6.8, 5.0, 6.7, 6.9, 
+        5.3, 5.6, 6.2, 5.9, 6.5,
+        5.0, 6.4, 6.3, 5.8, 5.7,
+        6.8, 5.1, 6.0, 7.2, 5.6
+    ],
+    'Just Transition Score': [
+        5.2, 7.0, 5.4, 6.6, 6.7, 
+        6.3, 4.8, 6.4, 6.5, 5.5,
+        6.0, 7.2, 6.8, 6.0, 5.9,
+        6.7, 5.8, 5.4, 8.1, 6.3
+    ],
+    'Investment in Renewable Energy': [
+        'High', 'Moderate', 'Low', 'High', 'High', 
+        'Moderate', 'Low', 'High', 'Moderate', 'Low',
+        'Moderate', 'High', 'Moderate', 'Low', 'Moderate',
+        'High', 'Moderate', 'Low', 'High', 'Moderate'
+    ],
+    'Worker Compensation for Climate Hazards': [
+        'Yes', 'No', 'No', 'Yes', 'Yes', 
+        'No', 'No', 'Yes', 'No', 'No',
+        'Yes', 'No', 'Yes', 'No', 'No',
+        'Yes', 'No', 'No', 'Yes', 'No'
+    ]}
+
+# Creating the DataFrame
+brands_df = pd.DataFrame(data)
+brands_df.set_index('Brand', inplace=True)
+
+# Define color palette
+colors = ['#314d88', '#b03239', '#f4c04e', '#f9f2e5', '#f9f2e5']
+
+# Stacked bar chart for emissions
+emissions_df = brands_df[['Scope 1 Emissions', 
+                          'Scope 2 Emissions', 
+                          'Scope 3 Emissions']]
+emissions_df.plot(kind='bar', stacked=True, color=colors[:3], figsize=(10, 6))
+plt.title('Emissions Distribution Across Scope 1, 2, and 3 by Brand')
+plt.xlabel('Brand')
+plt.ylabel('Total Emissions')
+plt.legend(title='Emission Scope')
+plt.show()
+
+# Scatter plot for Decarbonisation vs Accountability Score
+plt.figure(figsize=(10, 6))
+sns.scatterplot(
+    data=brands_df,
+    x='Decarbonisation Score',
+    y='Accountability Score',
+    hue='Investment in Renewable Energy',
+    style='Worker Compensation for Climate Hazards',
+    palette={'High': colors[0], 'Moderate': colors[1], 'Low': colors[2]},
+    s=100
+)
+plt.title('Decarbonisation Score vs Accountability Score')
+plt.xlabel('Decarbonisation Score')
+plt.ylabel('Accountability Score')
+plt.legend(title='Investment in Renewable Energy / Worker Compensation')
+plt.grid(True)
+plt.show()
+
+# Pie chart for Investment in Renewable Energy
+investment_counts = brands_df['Investment in Renewable Energy'].value_counts()
+plt.figure(figsize=(8, 8))
+plt.pie(
+    investment_counts,
+    labels=investment_counts.index,
+    autopct='%1.1f%%',
+    startangle=140,
+    colors=[colors[0], colors[1], colors[2]]
+)
+plt.title('Investment in Renewable Energy')
+plt.show()
+
+# Redundant stacked bar chart removed for clarity
+
+# Calculate total emissions for each brand
+brands_df['Total Emissions'] = (brands_df['Scope 1 Emissions'] + 
+                                brands_df['Scope 2 Emissions'] + 
+                                brands_df['Scope 3 Emissions'])
+
+# Bubble chart: Accountability vs. Just Transition Scores with Emissions as Bubble Size
+plt.figure(figsize=(10, 6))
+plt.scatter(brands_df['Accountability Score'], brands_df['Just Transition Score'], 
+            s=brands_df['Total Emissions'] / 1000, alpha=0.6, c=brands_df['Decarbonisation Score'], cmap='viridis')
+plt.colorbar(label='Decarbonisation Score')
+plt.xlabel('Accountability Score')
+plt.ylabel('Just Transition Score')
+plt.title('Accountability vs. Just Transition Score by Total Emissions')
+plt.show()
+
+import pandas as pd
+
+# Sample data dictionary as per the example above; replace this with actual data loading if needed.
+data = {
+    'Brand': ['G-Star RAW', 'JD Sports', 'Gucci', 'Marks & Spencer', 'American Eagle', 
+              'Hanes', 'OVS', 'Target', 'Lululemon', 'Balenciaga', 
+              'The North Face', 'Champion', 'Bottega Veneta', 'Nike', 
+              'Primark', 'SAINT LAURENT', 'Converse', 'Zara', 
+              'Hugo Boss', 'Adidas'],
+    'Scope 1': [2500, 3900, 5400, 2100, 5500, 
+                1500, 4700, 3800, 3200, 4700, 
+                5000, 6000, 4100, 4000, 
+                4300, 3800, 3600, 6100, 
+                5000, 5200],
+    'Scope 2': [5600, 5800, 6300, 6800, 5000, 
+                5500, 7100, 6200, 7200, 6800, 
+                6400, 6200, 7000, 7100, 
+                6000, 7300, 7400, 6900, 
+                8000, 6500],
+    'Scope 3': [82000, 83000, 81000, 85000, 84000, 
+                89000, 85000, 87000, 87000, 86000, 
+                88000, 88000, 90000, 91000, 
+                92000, 92000, 94000, 93000, 
+                96000, 98000]
+}
+
+# Create DataFrame and set 'Brand' as the index
+df = pd.DataFrame(data)
+df.set_index('Brand', inplace=True)
+
+# Check for the existence of 'Scope 3' column
+print("Columns in DataFrame:", df.columns)  # Debug line to check column names
+
+# Ensure 'Scope 3' exists, then proceed with sorting
+if 'Scope 3' in df.columns:
+    df_sorted = df.sort_values(by='Scope 3', ascending=False)
+    print("Data sorted successfully.")
+else:
+    print("Error: 'Scope 3' column not found.")
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+df.set_index('Brand', inplace=True)
+
+# Sort data by Scope 3 emissions (highest to lowest)
+df_sorted = df.sort_values(by='Scope 3', ascending=False)
+
+# Set up the plot
+plt.figure(figsize=(12, 8))
+heatmap = sns.heatmap(
+    df_sorted, 
+    annot=True, 
+    fmt="d", 
+    cmap="YlGnBu",  # Softer color scale for better visibility
+    linewidths=0.5, 
+    linecolor='grey', 
+    cbar_kws={'label': 'Emission Levels (Metric Tons CO2e)'}
+)
+
+# Title and labels
+plt.title('Enhanced Decarbonisation Progress by Brand (Ranked Heatmap)', fontsize=16)
+plt.xlabel('Emission Scope', fontsize=12)
+plt.ylabel('Brand', fontsize=12)
+
+# Adjust ticks for readability
+plt.xticks(rotation=45, ha='right')
+plt.yticks(rotation=0)
+
+# Display the plot
+plt.tight_layout()
+plt.show()
